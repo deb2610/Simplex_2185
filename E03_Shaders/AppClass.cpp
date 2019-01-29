@@ -4,6 +4,7 @@ AppClass::AppClass(std::string a_windowName) : m_sWindowName(a_windowName) {}
 AppClass::AppClass(AppClass const& input) {}
 AppClass& AppClass::operator=(AppClass const& input) { return *this; }
 AppClass::~AppClass(void){ Release(); }
+bool colorSwap = false;
 void AppClass::Run(void)
 {
 	//Initialize the system with the fields recollected by the constructor
@@ -67,8 +68,10 @@ void AppClass::InitOpenGL(void)
 }
 void AppClass::InitShaders(void)
 {
-	m_uShaderProgramID = LoadShaders("Shaders//BasicColor.vs", "Shaders//BasicColor.fs");
+	m_uShaderProgramID = LoadShaders("Shaders//BasicColorComp.vs", "Shaders//BasicColorComp.fs");
 	glUseProgram(m_uShaderProgramID);
+	
+	
 }
 void AppClass::InitVariables(void)
 {
@@ -105,6 +108,7 @@ void AppClass::InitVariables(void)
 }
 void AppClass::ProcessKeyboard(sf::Event a_event)
 {
+
 	if (a_event.key.code == sf::Keyboard::Key::Escape)//Event says I pressed the Escape key
 		m_bRunning = false;
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) //I am currently pressing the Num1 (not the same as above)
@@ -115,16 +119,35 @@ void AppClass::ProcessKeyboard(sf::Event a_event)
 		m_v3Color = glm::vec3(0.0f, 0.0f, 1.0f);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
 		m_v3Color = glm::vec3(-1.0f, -1.0f, -1.0f);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return)) {
+		colorSwap = !colorSwap;
+	}
+	glUseProgram(m_uShaderProgramID);
+	
 }
 void AppClass::Display(void)
 {
 	// clear the buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	//swaperoo
+	/*if (colorSwap)
+	{*/
+		m_uShaderProgramID = LoadShaders("Shaders//BasicColorComp.vs", "Shaders//BasicColorComp.fs");
+	/*}
+	else 
+	{
+		m_uShaderProgramID = LoadShaders("Shaders//BasicColor.vs", "Shaders//BasicColor.fs");
+	}*/
+	glUseProgram(m_uShaderProgramID);
+
 	//read uniforms and send values
 	GLuint SolidColor = glGetUniformLocation(m_uShaderProgramID, "SolidColor");
-	glUniform3f(SolidColor, m_v3Color.r, m_v3Color.g, m_v3Color.b);
+	GLuint Swap = glGetUniformLocation(m_uShaderProgramID, "swap");
 
+	//std::cout << "Color " << m_v3Color.r << " " << m_v3Color.g << " " << m_v3Color.b << "" << std::endl;
+	glUniform3f(SolidColor, m_v3Color.r, m_v3Color.g, m_v3Color.b);
+	glUniform1i(Swap, colorSwap);
 	//draw content
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
