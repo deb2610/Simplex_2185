@@ -490,9 +490,45 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	for (size_t i = 0; i < a_nSubdivisions; i++)
+	{
+		float theta1 = ((float)i / a_nSubdivisions)*PI;
+		float theta2 = ((float)(i+2) / a_nSubdivisions)*PI;
 
+		for (size_t j = 0; j < a_nSubdivisions; j++)
+		{
+			float phi1 = ((float)j/a_nSubdivisions)*2*PI;
+			float phi2 = ((float)(j+1)/a_nSubdivisions)*2*PI;
+			//phi2   phi1
+			// |      |
+			// 2------1 -- theta1
+			// |\ _   |
+			// |    \ |
+			// 3------4 -- theta2
+			//
+
+			vector3 vertex1 = vector3(theta1, phi1,0)*a_fRadius;//vertex on a sphere of radius r at spherical coords theta1, phi1
+			vector3 vertex2 = vector3(theta1, phi2,0)*a_fRadius;//vertex on a sphere of radius r at spherical coords theta1, phi2
+			vector3 vertex3 = vector3(theta2, phi2,0)*a_fRadius;//vertex on a sphere of radius r at spherical coords theta2, phi2
+			vector3 vertex4 = vector3(theta2, phi1,0)*a_fRadius;//vertex on a sphere of radius r at spherical coords theta2, phi1
+			// facing out
+			if (i == 0) { // top cap
+				AddTri(vertex1, vertex3, vertex4);//t1p1, t2p2, t2p1
+			} 
+			else if (i + 1 == a_nSubdivisions) { //end cap
+				AddTri(vertex3, vertex1, vertex2); //t2p2, t1p1, t1p2
+			}
+			else
+			{
+				// body, facing OUT:
+				AddTri(vertex1, vertex2, vertex4);
+				AddTri(vertex2, vertex3, vertex4);
+			}
+		}
+
+	}
+
+	
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
