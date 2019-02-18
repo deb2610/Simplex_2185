@@ -11,9 +11,6 @@ void Application::InitVariables(void)
 	
 	m_pMesh = new MyMesh();
 	m_pMesh->GenerateCube(1.0f, C_BLUE);
-
-	m_pMesh2 = new MyMesh();
-	m_pMesh2->GenerateCone(1.0f,2.0f,8.0f, C_RED);
 	for (size_t i = 0; i < 47; i++)
 	{
 		meshList.push_back(m_pMesh);
@@ -103,8 +100,6 @@ void Application::Display(void)
 
 	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
 	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
-	matrix4 m4Model = glm::rotate(IDENTITY_M4, glm::radians(90.0f), vector3(0.0f, 0.0f, 1.0f));
-	m_pMesh2->Render(m4Projection,m4View,m4Model);
 	
 	//matrix4 m4Scale = glm::scale(IDENTITY_M4, vector3(2.0f,2.0f,2.0f));
 	//static float value = 0.0f;
