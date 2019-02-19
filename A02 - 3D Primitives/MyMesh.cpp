@@ -490,15 +490,18 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
+	//referenced formulas from here: https://en.wikipedia.org/wiki/Spherical_coordinate_system
+	//referenced code from here: https://gamedev.stackexchange.com/questions/16585/how-do-you-programmatically-generate-a-sphere
 	for (size_t i = 0; i < a_nSubdivisions; i++)
 	{
-		float theta1 = ((float)i / a_nSubdivisions)*PI;
-		float theta2 = ((float)(i+2) / a_nSubdivisions)*PI;
+		float theta1 = ((float)i / (float)a_nSubdivisions)*PI;
+		float theta2 = ((float)(i+1) / (float)a_nSubdivisions)*PI;
 
 		for (size_t j = 0; j < a_nSubdivisions; j++)
 		{
-			float phi1 = ((float)j/a_nSubdivisions)*2*PI;
-			float phi2 = ((float)(j+1)/a_nSubdivisions)*2*PI;
+			float phi1 = ((float)j/ (float)a_nSubdivisions)*2*PI;
+			float phi2 = ((float)(j+1)/ (float)a_nSubdivisions)*2*PI;
+
 			//phi2   phi1
 			// |      |
 			// 2------1 -- theta1
@@ -507,22 +510,26 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 			// 3------4 -- theta2
 			//
 
-			vector3 vertex1 = vector3(theta1, phi1,0)*a_fRadius;//vertex on a sphere of radius r at spherical coords theta1, phi1
-			vector3 vertex2 = vector3(theta1, phi2,0)*a_fRadius;//vertex on a sphere of radius r at spherical coords theta1, phi2
-			vector3 vertex3 = vector3(theta2, phi2,0)*a_fRadius;//vertex on a sphere of radius r at spherical coords theta2, phi2
-			vector3 vertex4 = vector3(theta2, phi1,0)*a_fRadius;//vertex on a sphere of radius r at spherical coords theta2, phi1
-			// facing out
-			if (i == 0) { // top cap
-				AddTri(vertex1, vertex3, vertex4);//t1p1, t2p2, t2p1
+			vector3 vertex1 = vector3(sin(theta1)*cos(phi1), sin(theta1)*sin(phi1), cos(theta1))*a_fRadius;//spherical coords theta1, phi1
+			vector3 vertex2 = vector3(sin(theta1)*cos(phi2), sin(theta1)*sin(phi2), cos(theta1))*a_fRadius;//spherical coords theta1, phi2
+			vector3 vertex3 = vector3(sin(theta2)*cos(phi2), sin(theta2)*sin(phi2), cos(theta2))*a_fRadius;//spherical coords theta2, phi2
+			vector3 vertex4 = vector3(sin(theta2)*cos(phi1), sin(theta2)*sin(phi1), cos(theta2))*a_fRadius;//spherical coords theta2, phi1
+			
+			// Draw stuff
+			if (i == 0) { 
+				// top cap
+				AddTri(vertex4, vertex3, vertex1);
 			} 
-			else if (i + 1 == a_nSubdivisions) { //end cap
-				AddTri(vertex3, vertex1, vertex2); //t2p2, t1p1, t1p2
+			else if (i + 1 == a_nSubdivisions) { 
+				//bottom cap
+				AddTri(vertex2, vertex1, vertex3); 
 			}
 			else
 			{
-				// body, facing OUT:
-				AddTri(vertex1, vertex2, vertex4);
-				AddTri(vertex2, vertex3, vertex4);
+				// midsection
+				AddTri(vertex4, vertex2, vertex1);
+				AddTri(vertex4, vertex3, vertex2);
+				//AddQuad(vertex4, vertex3, vertex1, vertex2);
 			}
 		}
 
